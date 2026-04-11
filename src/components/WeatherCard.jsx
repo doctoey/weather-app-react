@@ -10,29 +10,27 @@ export default function WeatherCard({ weather }) {
 
   return (
     <div className="card">
-      <h2>{loc.name || 'Unknown'}{loc.country ? `, ${loc.country}` : ''}</h2>
-      <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-        <div style={{ fontSize: 48 }}>{iconForCode(cur.weathercode)}</div>
+      <div className="location">{loc.name || 'Unknown'}{loc.country ? `, ${loc.country}` : ''}</div>
+
+      <div className="current">
+        <div className="big-icon">{iconForCode(cur.weathercode)}</div>
         <div>
-          <p style={{ margin: 0 }}><strong>{cur.temperature ?? '—'} °C</strong></p>
-          <p style={{ margin: 0 }}>Wind: {cur.windspeed ?? '—'} m/s</p>
+          <div className="temp">{cur.temperature ?? '—'} °C</div>
+          <div className="muted">Wind: {cur.windspeed ?? '—'} m/s</div>
         </div>
       </div>
 
-      <hr />
-
-      <div style={{ marginTop: 12 }}>
+      <div className="chart-wrap">
         <TempChart daily={weather.daily} />
       </div>
 
-      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginTop: 12 }}>
+      <div className="daily-list">
         {weather.daily && weather.daily.map(d => (
-          <div key={d.date} style={{ minWidth: 120, padding: 8, background: '#fff', borderRadius: 6, boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
-            <div style={{ fontSize: 14 }}>{new Date(d.date).toLocaleDateString()}</div>
-            <div style={{ fontSize: 20 }}>{iconForCode(d.weathercode)}</div>
-            <div>Max: {d.temp_max ?? '—'}°</div>
-            <div>Min: {d.temp_min ?? '—'}°</div>
-            <div>Rain: {d.precipitation ?? '—'} mm</div>
+          <div key={d.date} className="day">
+            <div className="date">{new Date(d.date).toLocaleDateString()}</div>
+            <div className="big-icon" style={{ fontSize: 26 }}>{iconForCode(d.weathercode)}</div>
+            <div className="temp">{d.temp_max ?? '—'}° / {d.temp_min ?? '—'}°</div>
+            <div className="muted">Rain: {d.precipitation ?? '—'} mm</div>
           </div>
         ))}
       </div>
