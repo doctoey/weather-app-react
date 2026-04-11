@@ -1,6 +1,23 @@
-# Weather App (React)
+# 🌦️ Weather App (React)
 
-Lightweight React + Vite weather app using Open‑Meteo. Includes typeahead, 7-day forecast, Chart.js charts, PWA support, service worker, and a small IndexedDB cache.
+![Vite](https://img.shields.io/badge/Vite-⚡-FFCB2B) ![React](https://img.shields.io/badge/React-18-blue) ![PWA](https://img.shields.io/badge/PWA-Ready-green)
+
+A sleek, lightweight weather dashboard built with React + Vite — fast, offline-capable, and packed with small niceties:
+
+- Search with typeahead + preview
+- Current conditions + 7-day forecast
+- Chart.js temperature trends
+- PWA-ready (manifest + service worker)
+- Local caching in IndexedDB (offline access)
+- Tailwind CSS micro-interactions
+
+---
+
+Demo (replace with your GIF/screenshot):
+
+![demo-placeholder](public/demo-placeholder.gif)
+
+---
 
 ## Quick start
 
@@ -12,37 +29,34 @@ npm install
 npm run dev
 ```
 
+Open http://localhost:5173 in your browser.
+
 ## Useful scripts
 
 - `npm run dev` — Start Vite dev server
 - `npm run build` — Build production
 - `npm run preview` — Preview production build locally
-- `npm run generate:icons` — Convert `public/icons/*.svg` → PNG (requires `sharp` devDependency)
+- `npm run generate:icons` — Convert `public/icons/*.svg` → PNG (uses `sharp`)
 - `npm run lint` — Run ESLint
 - `npm run lint:fix` — Run ESLint with `--fix`
 - `npm run format` — Run Prettier to format files
 
-## Icons / PWA
+## PWA & Icons
 
-The app includes `public/manifest.webmanifest` and `public/icons/*.svg`. For best cross-platform compatibility, PNG icons are generated into `public/icons/` via:
+The app ships with `public/manifest.webmanifest` and `public/icons/*.svg`. For better platform support generate PNG icons:
 
 ```bash
 npm run generate:icons
 ```
 
-Note: the PNG generator uses `sharp`. On Windows, if installing `sharp` fails, follow the sharp installation notes: install windows build tools or use prebuilt binaries — see https://sharp.pixelplumbing.com/install for troubleshooting.
+If `sharp` fails to install on Windows, follow the troubleshooting notes at https://sharp.pixelplumbing.com/install
 
-PWA installability is configured via `vite.config.js` (VitePWA plugin) and the manifest in `public/manifest.webmanifest`.
+## Development notes
 
-## Proxy (optional)
+- API: frontend calls Open‑Meteo; a Node proxy example is available at `proxy_example/server.js` to avoid CORS during development.
+- Cache: recent results + forecasts are saved to IndexedDB (`src/db/indexeddb.js`) and mirrored to `localStorage` for fast access.
 
-To avoid CORS while developing, a Node/Express proxy example exists at `proxy_example/server.js`. Run it and point frontend to `/api/weather` if needed.
-
-## Storage
-
-- Recent searches and cached forecasts are persisted in IndexedDB (see `src/db/indexeddb.js`) and also mirrored to `localStorage` for quick access.
-
-## Linting & Formatting
+## Lint & Format
 
 We use ESLint + Prettier. After installing dependencies run:
 
@@ -52,21 +66,23 @@ npm run lint:fix
 npm run format
 ```
 
-## Notes & troubleshooting
+## Want it cooler? — Ideas I can add
 
-- If `npm install` fails due to peer deps, try `npm install --legacy-peer-deps` or update plugin versions.
-- `sharp` can be problematic on Windows; installing build tools or using the prebuilt binaries as documented by sharp usually resolves it.
+- Add a demo GIF and a nice hero screenshot
+- Automatic PNG icon generation during `npm run build`
+- GitHub Actions to run `lint` + `build`
+- Small deploy script to Netlify/Vercel
 
-## Files to check
-
-- Manifest: `public/manifest.webmanifest`
-- Icon generator script: `scripts/generate-icons.js`
-- IndexedDB helper: `src/db/indexeddb.js`
-- Main app: `src/App.jsx`
+Tell me which one and I’ll add it.
 
 ---
 
-If you want, I can:
-- Run `npm install` and `npm run format` here,
-- Add PNG icons now (run the generator), or
-- Add a short CONTRIBUTING or DEVELOPERS guide.
+Files worth checking:
+- Manifest: [public/manifest.webmanifest](public/manifest.webmanifest#L1)
+- Icon generator script: [scripts/generate-icons.js](scripts/generate-icons.js#L1)
+- IndexedDB helper: [src/db/indexeddb.js](src/db/indexeddb.js#L1)
+- Main app: [src/App.jsx](src/App.jsx#L1)
+
+License: MIT
+
+Made with ❤️ — say the word and I’ll add a GIF, badges, CI, or deploy setup.
