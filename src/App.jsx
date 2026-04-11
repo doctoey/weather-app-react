@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import WeatherCard from './components/WeatherCard';
 import Settings from './components/Settings';
-import { saveForecast, saveRecent, getAllRecents } from './db/indexeddb';
+import { saveForecast, saveRecent as saveRecentDB, getAllRecents } from './db/indexeddb';
 import {
   getWeatherByCity,
   tryProxyCity,
@@ -46,7 +46,8 @@ export default function App() {
       if (proxy) {
         setWeather(proxy);
         await saveForecast(q.toLowerCase(), proxy);
-        await saveRecent(q.toLowerCase(), q);
+        await saveRecentDB(q.toLowerCase(), q);
+        addRecentLocal(q);
         setLoading(false);
         return;
       }
@@ -58,7 +59,8 @@ export default function App() {
       const res = await getWeatherByCity(q, settings.days, settings.units);
       setWeather(res);
       await saveForecast(q.toLowerCase(), res);
-      await saveRecent(q.toLowerCase(), q);
+      await saveRecentDB(q.toLowerCase(), q);
+      addRecentLocal(q);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -101,7 +103,9 @@ export default function App() {
       .then((items) => {
         if (mounted) setRecent(items);
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.debug('getAllRecents error', err);
+      });
     return () => {
       mounted = false;
     };
@@ -111,7 +115,9 @@ export default function App() {
   useEffect(() => {
     try {
       localStorage.setItem('weather_settings', JSON.stringify(settings));
-    } catch {}
+    } catch (e) {
+      console.debug('Failed to persist settings', e);
+    }
   }, [settings]);
 
   // auto-refresh logic
@@ -158,7 +164,7 @@ export default function App() {
     }
   });
 
-  function saveRecent(item) {
+  function addRecentLocal(item) {
     const key = typeof item === 'string' ? item : item.name || item.location?.name;
     if (!key) return;
     const next = [key, ...recent.filter((r) => r !== key)].slice(0, 6);
@@ -173,7 +179,7 @@ export default function App() {
     setActiveIdx(-1);
     // optionally trigger search immediately
     handleSearch();
-    saveRecent(s.name);
+    addRecentLocal(s.name);
   }
 
   function onInputKey(e) {
@@ -190,7 +196,7 @@ export default function App() {
         e.preventDefault();
       } else {
         handleSearch();
-        saveRecent(query);
+        addRecentLocal(query);
       }
     } else if (e.key === 'Escape') {
       setSuggestions([]);
@@ -247,7 +253,8 @@ export default function App() {
                           );
                           setWeather(res);
                           await saveForecast(`${lat},${lon}`, res);
-                          await saveRecent(`${lat},${lon}`, `My Location`);
+                          await saveRecentDB(`${lat},${lon}`, `My Location`);
+                          addRecentLocal('My Location');
                         } catch (e) {
                           setError(e.message);
                         } finally {
@@ -291,7 +298,7 @@ export default function App() {
                   className="btn-accent"
                   onClick={() => {
                     handleSearch();
-                    saveRecent(query);
+                    addRecentLocal(query);
                   }}
                   disabled={loading}
                 >
@@ -420,7 +427,7 @@ export default function App() {
               {recent.length > 0 && (
                 <div className="mt-2 text-sm text-slate-400">
                   Recent:{' '}
-                  {recent.map((r, idx) => (
+                  {recent.map((r) => (
                     <button
                       key={r}
                       className="ml-2 text-slate-300 hover:underline"
