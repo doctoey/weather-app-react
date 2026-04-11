@@ -3,11 +3,20 @@
 @tailwind utilities;
 
 /* Custom utilities + micro-interactions */
-.logo { @apply w-12 h-12 rounded-lg flex items-center justify-center font-bold text-white shadow-lg }
-.card-fade { @apply transition-transform duration-150 ease-in-out }
-.card-fade:hover { transform: translateY(-6px) }
-.btn-accent { @apply px-4 py-2 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition }
+.logo {
+  @apply w-12 h-12 rounded-lg flex items-center justify-center font-bold text-white shadow-lg;
+}
+.card-fade {
+  @apply transition-transform duration-150 ease-in-out;
+}
+.card-fade:hover {
+  transform: translateY(-6px);
+}
+.btn-accent {
+  @apply px-4 py-2 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition;
+}
 
 /* small helpers for non-tailwind parts */
-.muted { color: rgba(148,163,184,0.9) }
-
+.muted {
+  color: rgba(148, 163, 184, 0.9);
+}
