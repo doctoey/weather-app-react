@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import WeatherCard from './components/WeatherCard'
-import { getWeatherByCity, tryProxyCity, searchLocations } from './api/weatherService'
+import { getWeatherByCity, tryProxyCity, searchLocations, getWeatherByCoords } from './api/weatherService'
 
 export default function App() {
   const [city, setCity] = useState('')
@@ -45,6 +45,9 @@ export default function App() {
   const [query, setQuery] = useState('')
   const [suggestions, setSuggestions] = useState([])
   const [activeIdx, setActiveIdx] = useState(-1)
+  const [suggestLoading, setSuggestLoading] = useState(false)
+  const [preview, setPreview] = useState(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
   const debounceRef = useRef(null)
 
   useEffect(() => {
@@ -53,13 +56,42 @@ export default function App() {
       return
     }
     clearTimeout(debounceRef.current)
+    setSuggestLoading(true)
     debounceRef.current = setTimeout(async () => {
-      const res = await searchLocations(query)
-      setSuggestions(res.slice(0, 6))
-      setActiveIdx(-1)
+      try {
+        const res = await searchLocations(query)
+        setSuggestions(res.slice(0, 6))
+        setActiveIdx(-1)
+      } finally {
+        setSuggestLoading(false)
+      }
     }, 300)
     return () => clearTimeout(debounceRef.current)
   }, [query])
+
+  // preview when navigating suggestions
+  const previewRef = useRef(null)
+  useEffect(() => {
+    clearTimeout(previewRef.current)
+    if (activeIdx < 0 || !suggestions[activeIdx]) {
+      setPreview(null)
+      setPreviewLoading(false)
+      return
+    }
+    setPreviewLoading(true)
+    previewRef.current = setTimeout(async () => {
+      const s = suggestions[activeIdx]
+      try {
+        const p = await getWeatherByCoords(s.latitude, s.longitude, s.name, s.country, 1)
+        setPreview(p)
+      } catch (e) {
+        setPreview(null)
+      } finally {
+        setPreviewLoading(false)
+      }
+    }, 150)
+    return () => clearTimeout(previewRef.current)
+  }, [activeIdx, suggestions])
 
   // recent searches
   const [recent, setRecent] = useState(() => {
@@ -129,19 +161,47 @@ export default function App() {
                       onKeyDown={onInputKey}
                       placeholder="Search city, e.g. Bangkok"
                     />
+                    {/* spinner for suggestions */}
+                    {suggestLoading && (
+                      <div className="absolute right-28 top-3">
+                        <svg className="w-5 h-5 text-slate-300 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        </svg>
+                      </div>
+                    )}
                     <button className="btn-accent" onClick={() => { handleSearch(); saveRecent(query) }} disabled={loading}>{loading ? 'Loading...' : 'Search'}</button>
                   </div>
 
                   {/* suggestions dropdown */}
                   {(suggestions.length > 0) && (
-                    <ul className="absolute left-0 right-0 mt-2 bg-slate-800/80 rounded-lg backdrop-blur-sm shadow-lg z-20 overflow-hidden">
+                    <ul className="absolute left-0 right-0 mt-2 bg-slate-800/80 rounded-lg backdrop-blur-sm shadow-lg z-20 overflow-hidden transition-all duration-200 ease-out transform origin-top">
                       {suggestions.map((s, i) => (
-                        <li key={`${s.name}-${i}`} className={`px-4 py-2 cursor-pointer hover:bg-slate-700 ${i === activeIdx ? 'bg-slate-700' : ''}`} onMouseDown={() => pickSuggestion(s)}>
+                        <li key={`${s.name}-${i}`} className={`px-4 py-2 cursor-pointer hover:bg-slate-700 ${i === activeIdx ? 'bg-slate-700' : ''}`} onMouseDown={() => pickSuggestion(s)} onMouseEnter={() => setActiveIdx(i)}>
                           <div className="font-medium">{s.name}{s.country ? `, ${s.country}` : ''}</div>
                           <div className="text-xs text-slate-400">{s.latitude.toFixed(2)}, {s.longitude.toFixed(2)}</div>
                         </li>
                       ))}
                     </ul>
+                  )}
+
+                  {/* preview panel for highlighted suggestion */}
+                  {(activeIdx >= 0 && (preview || previewLoading)) && (
+                    <div className="absolute top-full right-0 mt-2 w-80 z-30">
+                      <div className="p-3 rounded-lg bg-slate-800/90 backdrop-blur-sm shadow-lg">
+                        {previewLoading ? (
+                          <div className="flex items-center gap-2"><svg className="w-5 h-5 animate-spin text-slate-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg><div className="text-sm text-slate-300">Loading preview...</div></div>
+                        ) : preview ? (
+                          <div>
+                            <div className="text-sm font-medium">{preview.location.name}{preview.location.country ? `, ${preview.location.country}` : ''}</div>
+                            <div className="mt-2 text-2xl font-bold">{preview.current?.temperature ?? '—'}°C</div>
+                            <div className="text-sm text-slate-400">Wind: {preview.current?.windspeed ?? '—'} m/s</div>
+                          </div>
+                        ) : (
+                          <div className="text-sm text-slate-400">No preview</div>
+                        )}
+                      </div>
+                    </div>
                   )}
 
                   {/* recent searches */}
