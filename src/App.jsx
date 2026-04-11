@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import WeatherCard from './components/WeatherCard'
+import Settings from './components/Settings'
+import { saveForecast, saveRecent, getAllRecents } from './db/indexeddb'
 import { getWeatherByCity, tryProxyCity, searchLocations, getWeatherByCoords } from './api/weatherService'
 
 export default function App() {
@@ -7,6 +9,9 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [weather, setWeather] = useState(null)
   const [error, setError] = useState(null)
+  const [settings, setSettings] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('weather_settings')) || { units: 'C', days: 7, theme: 'dark', autoRefresh: 0 } } catch { return { units: 'C', days: 7, theme: 'dark', autoRefresh: 0 } }
+  })
 
   const handleSearch = async () => {
     setError(null)
@@ -24,6 +29,8 @@ export default function App() {
       const proxy = await tryProxyCity(q)
       if (proxy) {
         setWeather(proxy)
+        await saveForecast(q.toLowerCase(), proxy)
+        await saveRecent(q.toLowerCase(), q)
         setLoading(false)
         return
       }
@@ -32,8 +39,10 @@ export default function App() {
     }
 
     try {
-      const res = await getWeatherByCity(q)
+      const res = await getWeatherByCity(q, settings.days, settings.units)
       setWeather(res)
+      await saveForecast(q.toLowerCase(), res)
+      await saveRecent(q.toLowerCase(), q)
     } catch (e) {
       setError(e.message)
     } finally {
@@ -68,6 +77,29 @@ export default function App() {
     }, 300)
     return () => clearTimeout(debounceRef.current)
   }, [query])
+
+  // load recents from IndexedDB on mount
+  useEffect(() => {
+    let mounted = true
+    getAllRecents().then(items => { if (mounted) setRecent(items) }).catch(() => {})
+    return () => { mounted = false }
+  }, [])
+
+  // persist settings
+  useEffect(() => {
+    try { localStorage.setItem('weather_settings', JSON.stringify(settings)) } catch {}
+  }, [settings])
+
+  // auto-refresh logic
+  useEffect(() => {
+    let timer = null
+    if (settings.autoRefresh && settings.autoRefresh > 0) {
+      timer = setInterval(() => {
+        if (city) handleSearch()
+      }, settings.autoRefresh * 60 * 1000)
+    }
+    return () => clearInterval(timer)
+  }, [settings.autoRefresh, city])
 
   // preview when navigating suggestions
   const previewRef = useRef(null)
@@ -153,7 +185,10 @@ export default function App() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <div className="relative mb-4">
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <Settings settings={settings} onChange={setSettings} />
+                    </div>
                     <input
                       className="flex-1 rounded-xl bg-slate-800 px-4 py-3 text-slate-100 focus:outline-none"
                       value={query}
@@ -161,7 +196,21 @@ export default function App() {
                       onKeyDown={onInputKey}
                       placeholder="Search city, e.g. Bangkok"
                     />
-                    {/* spinner for suggestions */}
+                      <button className="px-3 py-2 rounded bg-slate-700 text-sm" onClick={async () => {
+                        if (!navigator.geolocation) return alert('Geolocation not supported')
+                        navigator.geolocation.getCurrentPosition(async (pos) => {
+                          const lat = pos.coords.latitude
+                          const lon = pos.coords.longitude
+                          setLoading(true)
+                          try {
+                            const res = await getWeatherByCoords(lat, lon, 'Current location', null, settings.days, settings.units)
+                            setWeather(res)
+                            await saveForecast(`${lat},${lon}`, res)
+                            await saveRecent(`${lat},${lon}`, `My Location`)
+                          } catch (e) { setError(e.message) } finally { setLoading(false) }
+                        }, (err) => { setError(err.message) })
+                      }}>Use my location</button>
+                      {/* spinner for suggestions */}
                     {suggestLoading && (
                       <div className="absolute right-28 top-3">
                         <svg className="w-5 h-5 text-slate-300 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

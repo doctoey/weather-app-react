@@ -27,8 +27,8 @@ function cacheSet(key, value) {
   }
 }
 
-export async function getWeatherByCity(city) {
-  const key = `weather:city:${city.toLowerCase()}`
+export async function getWeatherByCity(city, days = 7, unit = 'C') {
+  const key = `weather:city:${city.toLowerCase()}:d${days}:u${unit}`
   const cached = cacheGet(key)
   if (cached) return cached
 
@@ -39,17 +39,17 @@ export async function getWeatherByCity(city) {
   if (!geodata.results || geodata.results.length === 0) throw new Error('No location found')
   const r = geodata.results[0]
 
-  const result = await getWeatherByCoords(r.latitude, r.longitude, r.name, r.country)
+  const result = await getWeatherByCoords(r.latitude, r.longitude, r.name, r.country, days, unit)
   cacheSet(key, result)
   return result
 }
 
-export async function getWeatherByCoords(lat, lon, name = null, country = null, days = 7) {
-  const key = `weather:coords:${lat},${lon}`
+export async function getWeatherByCoords(lat, lon, name = null, country = null, days = 7, unit = 'C') {
+  const key = `weather:coords:${lat},${lon}:d${days}:u${unit}`
   const cached = cacheGet(key)
   if (cached) return cached
-
-  const url = FORECAST_URL(lat, lon, days)
+  const tempUnit = unit === 'F' ? 'fahrenheit' : 'celsius'
+  const url = FORECAST_URL(lat, lon, days).replace('temperature_unit=celsius', `temperature_unit=${tempUnit}`)
   const resp = await fetch(url)
   if (!resp.ok) throw new Error('Forecast request failed')
   const data = await resp.json()
