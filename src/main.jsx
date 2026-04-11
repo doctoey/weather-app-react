@@ -8,3 +8,12 @@ createRoot(document.getElementById('root')).render(
     <App />
   </React.StrictMode>
 )
+
+// Register service worker for offline support (if supported)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/src/sw.js').then(reg => {
+      console.log('Service worker registered:', reg.scope)
+    }).catch(err => console.warn('SW register failed:', err))
+  })
+}

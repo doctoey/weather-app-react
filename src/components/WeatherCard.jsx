@@ -1,5 +1,6 @@
 import React from 'react'
 import { iconForCode } from '../icons/weatherIcons'
+import TempChart from './TempChart'
 
 export default function WeatherCard({ weather }) {
   if (!weather) return null
@@ -20,11 +21,15 @@ export default function WeatherCard({ weather }) {
 
       <hr />
 
-      <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+      <div style={{ marginTop: 12 }}>
+        <TempChart daily={weather.daily} />
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginTop: 12 }}>
         {weather.daily && weather.daily.map(d => (
           <div key={d.date} style={{ minWidth: 120, padding: 8, background: '#fff', borderRadius: 6, boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
-            <div style={{ fontSize: 18 }}>{new Date(d.date).toLocaleDateString()}</div>
-            <div style={{ fontSize: 24 }}>{iconForCode(d.weathercode)}</div>
+            <div style={{ fontSize: 14 }}>{new Date(d.date).toLocaleDateString()}</div>
+            <div style={{ fontSize: 20 }}>{iconForCode(d.weathercode)}</div>
             <div>Max: {d.temp_max ?? '—'}°</div>
             <div>Min: {d.temp_min ?? '—'}°</div>
             <div>Rain: {d.precipitation ?? '—'} mm</div>
