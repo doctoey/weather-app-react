@@ -9,40 +9,67 @@ export default function WeatherCard({ weather }) {
   const cur = weather.current || {};
 
   return (
-    <div className="rounded-xl p-6 bg-gradient-to-b from-slate-800/60 to-slate-800/40 shadow-lg card-fade">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-lg font-semibold">
-            {loc.name || 'Unknown'}
-            {loc.country ? `, ${loc.country}` : ''}
+    <div className="rounded-2xl p-6 bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl card-fade">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-400 flex items-center justify-center text-5xl shadow-inner">
+            {iconForCode(cur.weathercode)}
           </div>
-          <div className="text-sm text-slate-400">Current conditions</div>
+          <div>
+            <div className="text-2xl font-semibold">{loc.name || 'Unknown'}</div>
+            <div className="text-sm text-slate-300">{loc.country || ''} • Current</div>
+          </div>
         </div>
+
         <div className="text-right">
-          <div className="text-4xl font-bold">{cur.temperature ?? '—'}°C</div>
-          <div className="text-sm text-slate-400">Wind: {cur.windspeed ?? '—'} m/s</div>
+          <div className="text-5xl font-extrabold">{cur.temperature ?? '—'}°</div>
+          <div className="text-sm text-slate-300">Wind {cur.windspeed ?? '—'} m/s • {cur.winddirection ?? ''}</div>
         </div>
       </div>
 
-      <div className="flex gap-6 items-center mt-4">
-        <div className="text-6xl">{iconForCode(cur.weathercode)}</div>
-        <div className="flex-1">
-          <TempChart daily={weather.daily} />
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+        <div className="lg:col-span-2">
+          <div className="bg-white/10 p-3 rounded-xl">
+            <TempChart daily={weather.daily} />
+          </div>
+          <div className="mt-4 flex gap-3 overflow-x-auto py-1 daily-scroll">
+            {weather.daily &&
+              weather.daily.map((d) => (
+                <div
+                  key={d.date}
+                  className="min-w-[110px] bg-white/5 p-3 rounded-xl text-center flex-shrink-0 border border-white/10 hover:scale-105 transition-transform duration-150"
+                >
+                  <div className="text-xs text-slate-300">{new Date(d.date).toLocaleDateString(undefined, { weekday: 'short' })}</div>
+                  <div className="text-2xl mt-2">{iconForCode(d.weathercode)}</div>
+                  <div className="mt-1 font-medium">
+                    <span className="text-indigo-200">{d.temp_max ?? '—'}°</span>
+                    <span className="text-slate-400"> / {d.temp_min ?? '—'}°</span>
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1">Rain {d.precipitation ?? '—'} mm</div>
+                </div>
+              ))}
+          </div>
         </div>
-      </div>
 
-      <div className="mt-6 flex gap-3 overflow-x-auto">
-        {weather.daily &&
-          weather.daily.map((d) => (
-            <div key={d.date} className="min-w-[120px] bg-slate-700/30 p-3 rounded-lg text-center">
-              <div className="text-xs text-slate-400">{new Date(d.date).toLocaleDateString()}</div>
-              <div className="text-2xl mt-2">{iconForCode(d.weathercode)}</div>
-              <div className="mt-1 font-medium">
-                {d.temp_max ?? '—'}° / {d.temp_min ?? '—'}°
+        <div className="hidden lg:block">
+          <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+            <div className="text-sm text-slate-300">Details</div>
+            <div className="mt-3 text-xs text-slate-200 space-y-2">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Humidity</span>
+                <span className="font-medium">{cur.humidity ?? '—'}%</span>
               </div>
-              <div className="text-xs text-slate-400 mt-1">Rain: {d.precipitation ?? '—'} mm</div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Pressure</span>
+                <span className="font-medium">{cur.pressure ?? '—'} hPa</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">UV Index</span>
+                <span className="font-medium">{cur.uv_index ?? '—'}</span>
+              </div>
             </div>
-          ))}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -224,7 +224,7 @@ export default function App() {
                   <Settings settings={settings} onChange={setSettings} />
                 </div>
                 <input
-                  className="flex-1 rounded-xl bg-slate-800 px-4 py-3 text-slate-100 focus:outline-none"
+                  className="flex-1 rounded-xl bg-slate-800/60 px-4 py-3 text-slate-100 focus:outline-none min-w-[220px]"
                   value={query}
                   onChange={(e) => {
                     setQuery(e.target.value);
@@ -234,7 +234,7 @@ export default function App() {
                   placeholder="Search city, e.g. Bangkok"
                 />
                 <button
-                  className="px-3 py-2 rounded bg-slate-700 text-sm"
+                  className="px-3 py-2 rounded-md bg-slate-700/30 text-sm"
                   onClick={async () => {
                     if (!navigator.geolocation) return alert('Geolocation not supported');
                     navigator.geolocation.getCurrentPosition(
@@ -425,21 +425,23 @@ export default function App() {
 
               {/* recent searches */}
               {recent.length > 0 && (
-                <div className="mt-2 text-sm text-slate-400">
-                  Recent:{' '}
-                  {recent.map((r) => (
-                    <button
-                      key={r}
-                      className="ml-2 text-slate-300 hover:underline"
-                      onClick={() => {
-                        setQuery(r);
-                        setCity(r);
-                        handleSearch();
-                      }}
-                    >
-                      {r}
-                    </button>
-                  ))}
+                <div className="mt-2">
+                  <div className="text-xs text-slate-400 mb-1">Recent</div>
+                  <div className="flex flex-wrap gap-2">
+                    {recent.map((r) => (
+                      <button
+                        key={r}
+                        className="px-2 py-1 text-xs rounded-full bg-slate-700/40 text-slate-100 hover:bg-slate-700"
+                        onClick={() => {
+                          setQuery(r);
+                          setCity(r);
+                          handleSearch();
+                        }}
+                      >
+                        {r}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

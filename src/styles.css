@@ -13,10 +13,42 @@
   transform: translateY(-6px);
 }
 .btn-accent {
-  @apply px-4 py-2 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition;
+  @apply px-4 py-2 rounded-xl font-semibold text-white bg-gradient-to-br from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 transition shadow-md;
+}
+
+/* glass / card helpers */
+.glass {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
+}
+
+.shadow-inner {
+  box-shadow: inset 0 -6px 18px rgba(0,0,0,0.25);
 }
 
 /* small helpers for non-tailwind parts */
 .muted {
   color: rgba(148, 163, 184, 0.9);
 }
+
+/* small responsive tweaks */
+@media (min-width: 1024px) {
+  .min-w-[110px] { min-width: 110px; }
+}
+
+/* small UI helpers */
+.tips-card {
+  @apply p-3 rounded-md text-xs text-slate-300;
+  background-color: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.pill {
+  @apply px-2 py-1 rounded-full text-xs bg-slate-700/40 text-slate-100;
+}
+
+/* horizontal daily tiles scrollbar styling */
+.daily-scroll::-webkit-scrollbar { height: 8px; }
+.daily-scroll::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.14); border-radius: 9999px; }
+.daily-scroll { scrollbar-color: rgba(148,163,184,0.14) transparent; }
