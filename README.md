@@ -13,12 +13,6 @@ A sleek, lightweight weather dashboard built with React + Vite — fast, offline
 
 ---
 
-Demo (replace with your GIF/screenshot):
-
-![demo-placeholder](public/demo-placeholder.gif)
-
----
-
 ## Quick start
 
 Requirements: Node 18+ and npm
@@ -85,4 +79,4 @@ Files worth checking:
 
 License: MIT
 
-Made with ❤️ — say the word and I’ll add a GIF, badges, CI, or deploy setup.
+Built with ❤️ and a little bit of dev-grade swagger. Stay rad 😎
