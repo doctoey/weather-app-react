@@ -10,6 +10,7 @@ import {
 } from './api/weatherService';
 
 export default function App() {
+  const [showTips, setShowTips] = useState(true);
   const [city, setCity] = useState('');
   const [loading, setLoading] = useState(false);
   const [weather, setWeather] = useState(null);
@@ -459,14 +460,24 @@ export default function App() {
           </div>
 
           <aside>
-            <div className="tips-card mt-1 p-2 text-xs max-w-xs">
-              <div className="font-semibold mb-1 text-xs">Tips</div>
-              <ul className="ml-3 list-disc space-y-0.5">
-                <li>Use the Node proxy (<code>/proxy_example</code>) to avoid CORS in development.</li>
-                <li>Service worker caches recent API responses for offline view.</li>
-                <li>Click search to fetch current + forecast data.</li>
-              </ul>
-            </div>
+            {showTips && (
+              <div className="tips-card mt-1 p-2 text-xs max-w-xs relative animate-fadein">
+                <button
+                  className="absolute top-1 right-2 text-slate-400 hover:text-slate-200 text-base px-1"
+                  aria-label="Close tips"
+                  onClick={() => setShowTips(false)}
+                  tabIndex={0}
+                >
+                  ×
+                </button>
+                <div className="font-semibold mb-1 text-xs">Tips</div>
+                <ul className="ml-3 list-disc space-y-0.5">
+                  <li>Use the Node proxy (<code>/proxy_example</code>) to avoid CORS in development.</li>
+                  <li>Service worker caches recent API responses for offline view.</li>
+                  <li>Click search to fetch current + forecast data.</li>
+                </ul>
+              </div>
+            )}
           </aside>
         </div>
       </div>
