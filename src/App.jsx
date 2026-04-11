@@ -204,27 +204,27 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen px-6 py-8 bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100">
+    <div className="min-h-screen px-2 sm:px-6 py-6 bg-gradient-to-br from-slate-900 to-slate-950 text-slate-100">
       <div className="max-w-5xl mx-auto">
-        <header className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <div className="logo bg-gradient-to-br from-indigo-600 to-cyan-500">W</div>
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="logo bg-gradient-to-br from-indigo-600 via-blue-500 to-cyan-400 animate-gradient-x shadow-lg">W</div>
             <div>
-              <div className="text-xl font-bold">Weather App</div>
-              <div className="text-sm text-slate-400">Current weather and 7-day forecast</div>
+              <div className="text-2xl font-extrabold tracking-tight">Weather App</div>
+              <div className="text-xs sm:text-sm text-slate-400 font-medium">Current weather and 7-day forecast</div>
             </div>
           </div>
         </header>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-8">
           <div>
             <div className="relative mb-4">
-              <div className="flex gap-3 mb-4">
+              <div className="flex flex-wrap gap-2 sm:gap-3 mb-4 items-center">
                 <div className="flex items-center gap-2">
                   <Settings settings={settings} onChange={setSettings} />
                 </div>
                 <input
-                  className="flex-1 rounded-xl bg-slate-800/60 px-4 py-3 text-slate-100 focus:outline-none min-w-[220px]"
+                  className="flex-1 rounded-xl bg-slate-800/60 px-4 py-3 text-slate-100 focus:outline-none min-w-[180px] max-w-xs border border-slate-700 focus:ring-2 focus:ring-indigo-500"
                   value={query}
                   onChange={(e) => {
                     setQuery(e.target.value);
@@ -234,7 +234,7 @@ export default function App() {
                   placeholder="Search city, e.g. Bangkok"
                 />
                 <button
-                  className="px-3 py-2 rounded-md bg-slate-700/30 text-sm"
+                  className="px-3 py-2 rounded-md bg-slate-700/40 text-sm border border-slate-700 hover:bg-slate-700/60 transition"
                   onClick={async () => {
                     if (!navigator.geolocation) return alert('Geolocation not supported');
                     navigator.geolocation.getCurrentPosition(
@@ -295,7 +295,7 @@ export default function App() {
                   </div>
                 )}
                 <button
-                  className="btn-accent"
+                  className="btn-accent shadow-lg"
                   onClick={() => {
                     handleSearch();
                     addRecentLocal(query);
@@ -459,10 +459,10 @@ export default function App() {
           </div>
 
           <aside>
-            <div className="p-4 rounded-xl bg-slate-800/40 backdrop-blur-sm">
-              <div className="text-sm text-slate-300">Tips</div>
-              <ul className="mt-2 text-slate-400 text-sm list-disc list-inside">
-                <li>Use the Node proxy (`/proxy_example`) to avoid CORS in development.</li>
+            <div className="tips-card mt-1 p-2 text-xs max-w-xs">
+              <div className="font-semibold mb-1 text-xs">Tips</div>
+              <ul className="ml-3 list-disc space-y-0.5">
+                <li>Use the Node proxy (<code>/proxy_example</code>) to avoid CORS in development.</li>
                 <li>Service worker caches recent API responses for offline view.</li>
                 <li>Click search to fetch current + forecast data.</li>
               </ul>
