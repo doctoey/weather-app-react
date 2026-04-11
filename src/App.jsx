@@ -186,22 +186,41 @@ export default function App() {
                   )}
 
                   {/* preview panel for highlighted suggestion */}
-                  {(activeIdx >= 0 && (preview || previewLoading)) && (
-                    <div className="absolute top-full right-0 mt-2 w-80 z-30">
-                      <div className="p-3 rounded-lg bg-slate-800/90 backdrop-blur-sm shadow-lg">
-                        {previewLoading ? (
-                          <div className="flex items-center gap-2"><svg className="w-5 h-5 animate-spin text-slate-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg><div className="text-sm text-slate-300">Loading preview...</div></div>
-                        ) : preview ? (
-                          <div>
-                            <div className="text-sm font-medium">{preview.location.name}{preview.location.country ? `, ${preview.location.country}` : ''}</div>
-                            <div className="mt-2 text-2xl font-bold">{preview.current?.temperature ?? '—'}°C</div>
-                            <div className="text-sm text-slate-400">Wind: {preview.current?.windspeed ?? '—'} m/s</div>
+                  {(activeIdx >= 0) && (
+                    (() => {
+                      const visible = (preview || previewLoading)
+                      const cls = `absolute top-full right-0 mt-2 w-80 z-30 transition-all duration-200 origin-top ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`
+                      return (
+                        <div className={cls} onMouseDown={() => {
+                          // clicking preview fills input but does not trigger search
+                          const s = suggestions[activeIdx]
+                          if (s) {
+                            setQuery(s.name)
+                            setCity(s.name)
+                            setSuggestions([])
+                            setActiveIdx(-1)
+                          }
+                        }}>
+                          <div className="p-3 rounded-lg bg-slate-800/90 backdrop-blur-sm shadow-lg">
+                            {previewLoading ? (
+                              <div className="flex items-center gap-2"><svg className="w-5 h-5 animate-spin text-slate-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg><div className="text-sm text-slate-300">Loading preview...</div></div>
+                            ) : preview ? (
+                              <div>
+                                <div className="text-sm font-medium">{preview.location.name}{preview.location.country ? `, ${preview.location.country}` : ''}</div>
+                                <div className="mt-2 text-2xl font-bold">{preview.current?.temperature ?? '—'}°C</div>
+                                <div className="text-sm text-slate-400">Wind: {preview.current?.windspeed ?? '—'} m/s</div>
+                                <div className="mt-3">
+                                  <button className="btn-accent mr-2" onMouseDown={(e) => { e.stopPropagation(); const s = suggestions[activeIdx]; if (s) { setQuery(s.name); setCity(s.name); setSuggestions([]); setActiveIdx(-1); }}}>Use</button>
+                                  <button className="px-3 py-1 rounded bg-transparent border border-slate-600 text-slate-300" onMouseDown={(e) => { e.stopPropagation(); pickSuggestion(suggestions[activeIdx]); }}>Search</button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-sm text-slate-400">No preview</div>
+                            )}
                           </div>
-                        ) : (
-                          <div className="text-sm text-slate-400">No preview</div>
-                        )}
-                      </div>
-                    </div>
+                        </div>
+                      )
+                    })()
                   )}
 
                   {/* recent searches */}
