@@ -98,3 +98,16 @@ export async function tryProxyCity(city) {
     return null
   }
 }
+
+export async function searchLocations(query) {
+  if (!query || !query.trim()) return []
+  try {
+    const resp = await fetch(GEOCODE_URL + encodeURIComponent(query))
+    if (!resp.ok) return []
+    const j = await resp.json()
+    if (!j.results) return []
+    return j.results.map(r => ({ name: r.name, latitude: r.latitude, longitude: r.longitude, country: r.country }))
+  } catch (e) {
+    return []
+  }
+}
